@@ -3,8 +3,4 @@
 Testing Push
 Now we have branched
 
-Mereged into Main via another branch and then commited
-
-Fred
-
-Next test
+Now we have 2 pulls
