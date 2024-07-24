@@ -1,6 +1,4 @@
-# Demo
+# JF Widget Demo
 
-Testing P
-
-Test 2
+This is demo of the JF Custiom Widget
 
