@@ -1,34 +1,306 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <script src="//js.jotform.com/JotFormCustomWidget.min.js"></script>
-    </head>
-    <body>
-        <div id="main">
-            <h3>This is my first widget.Test3</h3>
-            <span id="labelText"></span>
-            <input type="text" id="userInput">
-        </div>
-        <script type="text/javascript">
-            //always subscribe to ready event and implement widget related code
-            //inside callback function , it is the best practice while developing widgets
-            JFCustomWidget.subscribe("ready", function(){
-                var label = JFCustomWidget.getWidgetSetting('QuestionLabel');
-                var param =JFCustomWidget.getWidgetSetting('Prefill');
-                window.alert(param) ;
-                document.getElementById('labelText').innerHTML = label;
-                //subscribe to form submit event
-                JFCustomWidget.subscribe("submit", function(){
-                    var msg = {
-                        //you should valid attribute to data for JotForm
-                        //to be able to use youw widget as required
-                        valid: true,
-                        value: document.getElementById('userInput').value
-                    }
-                    // send value to JotForm
-                    JFCustomWidget.sendSubmit(msg);
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inline Live Search Rows</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://js.jotform.com/JotFormCustomWidget.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 5px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: transparent;
+            color: #2c3345;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .line-items-container {
+            margin: 5px 0;
+            max-width: 309px;
+        }
+
+        .line-item-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            position: relative;
+            width: 300px;
+        }
+
+        .dropdown-container {
+            position: relative;
+            flex: 2;
+            margin-right: 5px;
+        }
+
+        /* Jotform-like input fields */
+        input[type="text"], input[type="number"], input[type="textarea"] {
+            font-size: 14px;
+            line-height: 1.5em;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-right: 5px;
+            width: 100%;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #2c3345;
+            background-color: #fff;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            outline: none;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #4da3ff;
+            box-shadow: 0 0 2px rgba(77,163,255,0.5);
+        }
+
+        /* Use original dropdown styling from the initial code */
+        .jotform-dropdown {
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0;
+            right: 0;
+            display: none;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 999;
+            animation: fadeIn 0.15s ease-in-out;
+            font-size: 0.85em;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        .jotform-dropdown.show {
+            display: block;
+        }
+
+        .jotform-dropdown p {
+            margin: 0;
+            padding: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: Arial, sans-serif; /* original font family */
+        }
+
+        .jotform-dropdown p:hover {
+            background: #f0f4ff;
+        }
+
+        .jotform-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        .jotform-dropdown::-webkit-scrollbar-thumb {
+            background: #b8bdc9;
+            border-radius: 4px;
+        }
+
+        .remove-row {
+            padding: 0 10px;
+            background: #ec3d3d;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-row:hover {
+            background: #d93636;
+        }
+
+        .add-row-btn {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #1AA557;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .add-row-btn:hover {
+            background: #168f48;
+        }
+
+        /* Fields sizing */
+        .line-item-quantity, .line-item-price, .line-item-gift, .line-item-description {
+            flex: 1;
+            min-width: 145px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <div class="line-items-container" id="lineItemsContainer"></div>
+    <button class="add-row-btn" id="addRowBtn">Add Row</button>
+
+    <script>
+        function resizeWidget() {
+            // Use a slight delay to ensure all layout changes have taken effect
+            setTimeout(function() {
+                const containerHeight = $('body').outerHeight(true);
+                const dropdownHeight = $('.jotform-dropdown.show').outerHeight(true) || 0;
+                JFCustomWidget.requestFrameResize({ height: containerHeight + dropdownHeight + 20 });
+            }, 100);
+        }
+
+        function attachRowEvents($row) {
+            const $descInput = $row.find('.line-item-description');
+            const $results = $row.find('.line-item-results');
+
+            $descInput.on('input', function() {
+                const query = $(this).val().trim();
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/warehouse/search',
+                        type: 'GET',
+                        data: { q: query, auth: window.auth },
+                        dataType: 'json',
+                        success: function(data) {
+                            let resultsHTML = '';
+                            if (Array.isArray(data) && data.length > 0) {
+                                data.forEach(item => {
+                                    resultsHTML += `
+                                        <p data-value="${item.description}" data-prick-id="${item.prick_id}">
+                                            <strong>${item.description}</strong><br><span style="color:#555;">ID: ${item.prick_id}</span>
+                                        </p>
+                                    `;
+                                });
+                            } else {
+                                resultsHTML = '<p>No results found</p>';
+                            }
+                            $results.html(resultsHTML).addClass('show');
+                            resizeWidget();
+                        },
+                        error: function() {
+                            $results.html('<p>Error fetching results</p>').addClass('show');
+                            resizeWidget();
+                        }
+                    });
+                } else {
+                    $results.html('').removeClass('show');
+                    resizeWidget();
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            $(document).on('click.jfdropdown', function(e) {
+                if (!$(e.target).closest($row).length) {
+                    $results.html('').removeClass('show');
+                    resizeWidget();
+                }
+            });
+
+            // Handle result selection
+            $results.on('click', 'p', function() {
+                const selectedVal = $(this).data('value');
+                const selectedPrickId = $(this).data('prick-id');
+                $descInput.val(selectedVal);
+                $descInput.data('prick_id', selectedPrickId);
+                $results.html('').removeClass('show');
+                resizeWidget();
+            });
+
+            // Remove row button handler
+            $row.find('.remove-row').on('click', function() {
+                $row.remove();
+                resizeWidget();
+            });
+
+            // Resize on focus/blur to adjust frame height
+            $row.find('input').on('focus blur', function() {
+                resizeWidget();
+            });
+        }
+
+        function createLineItemRow(description='', prick_id='', quantity='1', price_override='', gift_message='') {
+            const rowId = 'row-' + Date.now();
+            const $row = $(`
+                <div class="line-item-row" id="${rowId}">
+                    <div class="dropdown-container">
+                        <input type="text" class="line-item-description" placeholder="Type a question" value="${description}" data-prick_id="${prick_id}">
+                        <div class="jotform-dropdown line-item-results"></div>
+                    </div>
+                    <input type="number" class="line-item-quantity" placeholder="1" value="${quantity}">
+                    <input type="number" step="0.01" class="line-item-price" placeholder="Price" value="${price_override}">
+                    <input type="textarea" class="line-item-gift" placeholder="Gift" value="${gift_message}">
+                    <button type="button" class="remove-row">X</button>
+                </div>
+            `);
+
+            attachRowEvents($row);
+            return $row;
+        }
+
+        $(document).ready(function () {
+            JFCustomWidget.subscribe("ready", function () {
+                window.auth = JFCustomWidget.getWidgetSetting('api_auth');
+
+                // Add initial row
+                $('#lineItemsContainer').append(createLineItemRow());
+                resizeWidget();
+
+                // Add another row button
+                $('#addRowBtn').on('click', function() {
+                    $('#lineItemsContainer').append(createLineItemRow());
+                    resizeWidget();
+                });
+
+                // On submit, gather data
+                JFCustomWidget.subscribe("submit", function () {
+                    const lineItems = [];
+                    $('.line-item-row').each(function() {
+                        const desc = $(this).find('.line-item-description').val().trim();
+                        const prick_id = $(this).find('.line-item-description').data('prick_id') || "";
+                        const qty = $(this).find('.line-item-quantity').val().trim();
+                        const price = $(this).find('.line-item-price').val().trim();
+                        const gift = $(this).find('.line-item-gift').val().trim();
+
+                        if (desc !== "") {
+                            lineItems.push({
+                                description: desc,
+                                product_id: prick_id,
+                                quantity: qty,
+                                price_override: price,
+                                gift_message: gift
+                            });
+                        }
+                    });
+
+                    const result = {
+                        valid: lineItems.length > 0,
+                        value: JSON.stringify(lineItems)
+                    };
+                    JFCustomWidget.sendSubmit(result);
                 });
             });
-        </script>
-    </body>
+        });
+    </script>
+</body>
 </html>
