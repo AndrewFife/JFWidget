@@ -15,7 +15,7 @@
             JFCustomWidget.subscribe("ready", function(){
                 var label = JFCustomWidget.getWidgetSetting('QuestionLabel');
                 var param =JFCustomWidget.getWidgetSetting('Prefill');
-                window.alert() =param;
+                window.alert(param) ;
                 document.getElementById('labelText').innerHTML = label;
                 //subscribe to form submit event
                 JFCustomWidget.subscribe("submit", function(){
