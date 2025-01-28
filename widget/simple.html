@@ -260,8 +260,8 @@
 
         $(document).ready(function () {
             JFCustomWidget.subscribe("ready", function () {
-                window.auth = JFCustomWidget.getWidgetSetting('prefill');
-                window.alert(window.auth);
+                var authkey = JFCustomWidget.getWidgetSetting('prefill');
+                window.alert(authKey);
 
                 // Add initial row
                 $('#lineItemsContainer').append(createLineItemRow());
