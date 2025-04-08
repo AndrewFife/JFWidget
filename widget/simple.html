@@ -10,6 +10,53 @@
             <input type="text" id="userInput">
         </div>
         <script type="text/javascript">
+// -------- Test Code -----
+            const apiUrl = 'https://e-demo.jotform.com/API/form/250974534482060/submissions';
+            const apiKey = '105a838677dff7bd66a4e62b50bd3b41';
+            const nameDropdown = document.getElementById('nameDropdown');
+            const infoContainer = document.getElementById('infoContainer');
+            const selectedName = document.getElementById('selectedName');
+            const selectedDept = document.getElementById('selectedDept');
+            const selectedEmail = document.getElementById('selectedEmail');
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error');
+            const contentElement = document.getElementById('content');
+            
+            // Store the submissions data
+            let submissionsData = [];
+            
+            // Fetch data from the API with header for API key
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'apikey': apiKey
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.responseCode === 200 && data.content && Array.isArray(data.content)) {
+                        submissionsData = data.content;
+                        populateDropdown(submissionsData);
+                        loadingElement.style.display = 'none';
+                        contentElement.style.display = 'block';
+                    } else {
+                        throw new Error('Invalid data format received from API');
+                    }
+                })
+                .catch(error => {
+                    loadingElement.style.display = 'none';
+                    errorElement.textContent = `Error fetching data: ${error.message}`;
+                    console.error('Error:', error);
+                });
+
+
+          // ----End TEst code ---
+            
             //always subscribe to ready event and implement widget related code
             //inside callback function , it is the best practice while developing widgets
             JFCustomWidget.subscribe("ready", function(){
