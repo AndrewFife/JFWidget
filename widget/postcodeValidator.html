@@ -61,7 +61,7 @@
                   fetch(`https://api.postcodes.io/postcodes/${inputValue}/validate`)
                   .then((data) => {
                     var bodyJson = data.json();
-                    bodyJson.then((resultObject) => {
+                    return bodyJson.then((resultObject) => {
                       if(resultObject.status === 200 && resultObject.result === true){
                         JFCustomWidget.hideWidgetError();
                         return true
@@ -81,7 +81,7 @@
                    console.log("isValid", isValid)
                     return {
                       value: inputValue,
-                      valid: isValid
+                      valid: !!inputValue
                    }
                    }
             }
