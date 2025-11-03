@@ -57,23 +57,24 @@
                   validatePostcode(inputValue)
                  }
 
-                 function validatePostcode(inputValue){
-                  fetch(`https://api.postcodes.io/postcodes/${inputValue}/validate`)
-                  .then((data) => {
-                    var bodyJson = data.json();
-                     bodyJson.then((resultObject) => {
-                      if(resultObject.status === 200 && resultObject.result === true){
-                        JFCustomWidget.hideWidgetError();
-                        return true
-                      }
-                      else{
-                        JFCustomWidget.showWidgetError("The postcode is invalid.");
-                        return false;
-                      }
-                    })
-                })
-                     return false;
-                 }
+async function validatePostcode(inputValue) {
+    try {
+        const response = await fetch(`https://api.postcodes.io/postcodes/${inputValue}/validate`);
+        const resultObject = await response.json();
+        
+        if (resultObject.status === 200 && resultObject.result === true) {
+            JFCustomWidget.hideWidgetError();
+            return true;
+        } else {
+            JFCustomWidget.showWidgetError("The postcode is invalid.");
+            return false;
+        }
+    } catch (error) {
+        // Handle network or parsing errors
+        JFCustomWidget.showWidgetError("Error validating postcode.");
+        return false;
+    }
+}
          
                  // get widget data
                  function getData() {
