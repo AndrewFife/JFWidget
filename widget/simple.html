@@ -1,82 +1,1208 @@
+
 <!DOCTYPE html>
 <html>
-    <head>
-        <script src="//js.jotform.com/JotFormCustomWidget.min.js"></script>
-    </head>
-    <body>
-        <div id="main">
-            <h3>This is my first widget.Test4</h3>
-            <span id="labelText"></span>
-            <input type="text" id="userInput">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>mycar Image Carousel - Design 1</title>
+    <script src="https://cdn.jotfor.ms/s/umd/latest/for-custom-widgets.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .widget-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Design 1: Modern Blue with mycar Curves */
+        /* Upload Area Styles */
+        .upload-area {
+            border: 2px solid #00A6E9;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #CCEDFB 0%, #f9f9f9 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 0 20px 0;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* Curved design element background */
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 166, 233, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #1D174F;
+            background: linear-gradient(135deg, #00A6E9 0%, #CCEDFB 100%);
+            box-shadow: 0 8px 24px rgba(0, 166, 233, 0.2);
+        }
+
+        .upload-area-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .upload-text {
+            color: #1D174F;
+            font-size: 18px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            color: #004B88;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .btn-browse {
+            background: linear-gradient(135deg, #00A6E9 0%, #004B88 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 166, 233, 0.3);
+        }
+
+        .btn-browse:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 166, 233, 0.4);
+        }
+
+        /* Carousel Styles */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            background: linear-gradient(135deg, #f9f9f9 0%, #CCEDFB 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            margin: 0 0 15px 0;
+            border: 2px solid #00A6E9;
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .carousel-slide img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .carousel-slide img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Navigation Arrows */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 166, 233, 0.8);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background-color: #1D174F;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-prev {
+            left: 15px;
+        }
+
+        .nav-next {
+            right: 15px;
+        }
+
+        /* Image Counter & Delete */
+        .slide-info {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(29, 23, 79, 0.8);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-delete {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: #F39524;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(243, 149, 36, 0.3);
+        }
+
+        .btn-delete:hover {
+            background-color: #E67E0F;
+            transform: scale(1.15);
+        }
+
+        /* Thumbnail Strip */
+        .thumbnails {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0 0 0;
+            overflow-x: auto;
+            padding: 0 0 8px 0;
+            width: 100%;
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            opacity: 0.6;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .thumbnail:hover {
+            opacity: 0.8;
+            transform: scale(1.08);
+        }
+
+        .thumbnail.active {
+            opacity: 1;
+            border-color: #00A6E9;
+            box-shadow: 0 4px 12px rgba(0, 166, 233, 0.4);
+        }
+
+        /* Popup Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(29, 23, 79, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-container {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 90vw;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #f9f9f9 0%, #CCEDFB 100%);
+        }
+
+        .modal-counter {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1D174F;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #1D174F;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            background-color: #F39524;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .modal-image-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .modal-image-wrapper.dragging {
+            cursor: grabbing;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            animation: zoomIn 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            transform-origin: center;
+            transition: transform 0.1s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Modal Navigation */
+        .modal-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 166, 233, 0.85);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .modal-nav-btn:hover {
+            background-color: #F39524;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .modal-nav-prev {
+            left: 12px;
+        }
+
+        .modal-nav-next {
+            right: 12px;
+        }
+
+        /* Modal Zoom Controls */
+        .modal-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 20px;
+            border-top: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #f9f9f9 0%, #CCEDFB 100%);
+            flex-wrap: wrap;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            background-color: #00A6E9;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover {
+            background-color: #F39524;
+            transform: scale(1.1);
+        }
+
+        .zoom-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .zoom-level {
+            color: #1D174F;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+            margin: 0 4px;
+        }
+
+        .zoom-reset-btn {
+            width: 32px;
+            height: 32px;
+            background-color: #004B88;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-reset-btn:hover {
+            background-color: #F39524;
+            transform: scale(1.1);
+        }
+
+        /* Error message */
+        .error-msg {
+            display: none;
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 6px;
+            text-align: center;
+        }
+        .error-msg.visible { display: block; }
+
+        /* View-only mode — no delete, no add, no thumbnails strip actions */
+        body.view-only .btn-delete { display: none; }
+        body.view-only .thumbnails { background: transparent; }
+
+        /* Static/table mode — single image, compact */
+        body.static-mode .carousel-container { height: 160px; }
+        body.static-mode .thumbnails { display: none; }
+        body.static-mode .btn-delete { display: none; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-container {
+                max-width: 95vw;
+                max-height: 80vh;
+            }
+
+            .modal-header {
+                padding: 12px 16px;
+            }
+
+            .modal-controls {
+                padding: 10px 16px;
+                gap: 6px;
+            }
+
+            .zoom-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+
+            .zoom-level {
+                font-size: 12px;
+                min-width: 40px;
+            }
+
+            .modal-nav-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-overlay {
+                padding: 10px;
+            }
+
+            .modal-container {
+                max-width: 100vw;
+                max-height: 90vh;
+                border-radius: 12px;
+            }
+
+            .modal-header {
+                padding: 10px 12px;
+            }
+
+            .modal-controls {
+                padding: 8px 12px;
+                gap: 4px;
+            }
+
+            .zoom-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+            }
+
+            .zoom-level {
+                font-size: 11px;
+                min-width: 35px;
+            }
+
+            .modal-nav-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .carousel-container {
+                height: 200px;
+            }
+
+            .thumbnail {
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <!-- Upload Area -->
+        <div class="upload-area" id="drop-zone">
+            <div class="upload-area-content">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Drag & drop images here</div>
+                <div class="upload-hint">PNG, JPG, GIF, WebP supported</div>
+                <button class="btn-browse" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                <input type="file" id="file-input" multiple accept="image/*">
+            </div>
         </div>
-        <script type="text/javascript">
-// -------- Test Code -----
-            const apiUrl = 'https://api.jotform.com/form/250975439056062/submissions';
-            const apiKey = '';
-            const nameDropdown = document.getElementById('nameDropdown');
-            const infoContainer = document.getElementById('infoContainer');
-            const selectedName = document.getElementById('selectedName');
-            const selectedDept = document.getElementById('selectedDept');
-            const selectedEmail = document.getElementById('selectedEmail');
-            const loadingElement = document.getElementById('loading');
-            const errorElement = document.getElementById('error');
-            const contentElement = document.getElementById('content');
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <!-- Carousel Area -->
+        <div class="carousel-container" id="carousel">
+            <button class="nav-btn nav-prev" id="btn-prev" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="nav-btn nav-next" id="btn-next" onclick="moveSlide(1)">&#10095;</button>
             
-            // Store the submissions data
-            let submissionsData = [];
-            
-            // Fetch data from the API with header for API key
-            fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'apikey': apiKey
+            <div class="carousel-track" id="track"></div>
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="thumbnails" id="thumbnails"></div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-container" id="modal-container">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-counter" id="modal-counter">1 / 1</div>
+                <button class="modal-close-btn" onclick="closeModal()" title="Close">×</button>
+            </div>
+
+            <!-- Modal Body (Image Display) -->
+            <div class="modal-body">
+                <div class="modal-image-wrapper" id="modal-image-wrapper">
+                    <img id="modal-image" class="modal-image" src="" alt="">
+                </div>
+                <button class="modal-nav-btn modal-nav-prev" onclick="modalPrev()" title="Previous">&#10094;</button>
+                <button class="modal-nav-btn modal-nav-next" onclick="modalNext()" title="Next">&#10095;</button>
+            </div>
+
+            <!-- Modal Footer (Controls) -->
+            <div class="modal-controls">
+                <button class="zoom-btn" id="zoom-out-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+                <span class="zoom-level" id="zoom-level">100%</span>
+                <button class="zoom-btn" id="zoom-in-btn" onclick="zoomIn()" title="Zoom In">+</button>
+                <button class="zoom-reset-btn" id="zoom-reset-btn" onclick="resetZoom()" title="Reset">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImages = [];
+        let currentSlide = 0;
+        let isRequired = false;
+        let modalCurrentIndex = 0;
+        let uploadServerURL = '';
+        let uploadFolder = '';
+
+        // Zoom state
+        let zoomLevel = 100;
+        const MIN_ZOOM = 50;
+        const MAX_ZOOM = 300;
+        const ZOOM_STEP = 10;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        // Widget Settings Configuration
+        let widgetSettings = {
+            carouselHeight: 300,
+            carouselWidth: '100%',
+            containerPadding: 10,
+            containerOverflow: 'visible',
+            thumbnailSize: 60,
+            thumbnailGap: 10
+        };
+
+        // Generate a folder ID matching Jotform's format: formID_hexTimestamp+seed
+        function generateFolder(formID) {
+            var seed = Math.floor(Math.random() * 0x75bcd15).toString(16);
+            var time = Math.floor(new Date().getTime() / 1000).toString(16);
+            return formID + '_' + time + seed;
+        }
+
+        // Build Jotform metadata structure
+        function buildMetadataValue() {
+            if (uploadedImages.length === 0) return '';
+            return JFCustomWidgetUtils.buildMetadata('imagelinks', uploadedImages.map(function (img) {
+                var isDataUri = img.base64 && img.base64.indexOf('data:') === 0;
+                if (isDataUri) {
+                    return { name: img.name, base64: img.base64 };
+                } else {
+                    return { name: img.name, url: JFCustomWidgetUtils.getS3UriRelativePath(img.base64) };
+                }
+            }));
+        }
+
+        // Upload file to Jotform server
+        function uploadToJotform(file, callback) {
+            var origin = uploadServerURL.replace('/upload', '');
+            var url = origin + '/server.php?action=handleWidgetFiles&type=save';
+
+            var formData = new FormData();
+            formData.append('file', file, file.name);
+
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (response) {
+                console.log('[uploadToJotform] response:', JSON.stringify(response));
+                if (response && response.success && response.message) {
+                    callback(response.message);
+                } else {
+                    callback(null);
                 }
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.responseCode === 200 && data.content && Array.isArray(data.content)) {
-                        submissionsData = data.content;
-                        populateDropdown(submissionsData);
-                        loadingElement.style.display = 'none';
-                        contentElement.style.display = 'block';
-                    } else {
-                        throw new Error('Invalid data format received from API');
-                    }
-                })
-                .catch(error => {
-                    loadingElement.style.display = 'none';
-                    errorElement.textContent = `Error fetching data: ${error.message}`;
-                    console.error('Error:', error);
-                });
+            .catch(function () { callback(null); });
+        }
 
+        // Read file as base64
+        function readAsBase64(file, onDone) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                onDone(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
 
-          // ----End TEst code ---
-            
-            //always subscribe to ready event and implement widget related code
-            //inside callback function , it is the best practice while developing widgets
-            JFCustomWidget.subscribe("ready", function(){
-                var label = JFCustomWidget.getWidgetSetting('QuestionLabel');
-                var myPrefill =JFCustomWidget.getWidgetSetting('Prefill');
-               
-                document.getElementById('labelText').innerHTML = label;
-                document.getElementById('labelText').innerHTML = myPrefill;
-                //subscribe to form submit event
-                JFCustomWidget.subscribe("submit", function(){
-                    var msg = {
-                        //you should valid attribute to data for JotForm
-                        //to be able to use youw widget as required
-                        valid: true,
-                        value: document.getElementById('userInput').value
-                    }
-                    // send value to JotForm
-                    JFCustomWidget.sendSubmit(msg);
+        // Show error message
+        function showError(msg) {
+            var el = document.getElementById('error-msg');
+            el.textContent = msg;
+            el.classList.add('visible');
+            setTimeout(function () { el.classList.remove('visible'); }, 4000);
+        }
+
+        // Send current value to Jotform
+        function sendCurrentValue() {
+            JFCustomWidget.sendData({ value: buildMetadataValue() });
+        }
+
+        // Request frame resize
+        function requestResize() {
+            setTimeout(function () {
+                JFCustomWidget.requestFrameResize({
+                    height: document.body.scrollHeight + 20
                 });
+            }, 50);
+        }
+
+        // Apply widget settings to DOM
+        function applyWidgetSettings() {
+            const container = document.querySelector('.widget-container');
+            const carousel = document.getElementById('carousel');
+            const thumbnails = document.getElementById('thumbnails');
+
+            // Apply container settings
+            container.style.padding = widgetSettings.containerPadding + 'px';
+            container.style.overflow = widgetSettings.containerOverflow;
+
+            // Apply carousel settings
+            carousel.style.height = widgetSettings.carouselHeight + 'px';
+            carousel.style.width = widgetSettings.carouselWidth;
+
+            // Apply thumbnail settings
+            const thumbs = document.querySelectorAll('.thumbnail');
+            thumbs.forEach(function(thumb) {
+                thumb.style.width = widgetSettings.thumbnailSize + 'px';
+                thumb.style.height = widgetSettings.thumbnailSize + 'px';
             });
-        </script>
-    </body>
+
+            thumbnails.style.gap = widgetSettings.thumbnailGap + 'px';
+        }
+
+        // Zoom Functions
+        function zoomIn() {
+            if (zoomLevel < MAX_ZOOM) {
+                zoomLevel = Math.min(zoomLevel + ZOOM_STEP, MAX_ZOOM);
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > MIN_ZOOM) {
+                zoomLevel = Math.max(zoomLevel - ZOOM_STEP, MIN_ZOOM);
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            zoomLevel = 100;
+            dragOffsetX = 0;
+            dragOffsetY = 0;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            const image = document.getElementById('modal-image');
+            const zoomLevelDisplay = document.getElementById('zoom-level');
+            const zoomOutBtn = document.getElementById('zoom-out-btn');
+            const zoomInBtn = document.getElementById('zoom-in-btn');
+
+            // Update image transform
+            image.style.transform = `scale(${zoomLevel / 100}) translate(${dragOffsetX}px, ${dragOffsetY}px)`;
+
+            // Update zoom level display
+            zoomLevelDisplay.textContent = zoomLevel + '%';
+
+            // Update button states
+            zoomOutBtn.disabled = zoomLevel <= MIN_ZOOM;
+            zoomInBtn.disabled = zoomLevel >= MAX_ZOOM;
+        }
+
+        // Scroll-to-zoom for desktop
+        function handleMouseWheel(e) {
+            if (!document.getElementById('modal-overlay').classList.contains('active')) return;
+            
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -1 : 1;
+            
+            if (delta > 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        }
+
+        // Touch events for mobile pinch-to-zoom
+        let lastDistance = 0;
+
+        function getDistance(touches) {
+            if (touches.length < 2) return 0;
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function handleTouchStart(e) {
+            if (e.touches.length === 2) {
+                lastDistance = getDistance(e.touches);
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = getDistance(e.touches);
+                const delta = currentDistance - lastDistance;
+
+                if (delta > 5) {
+                    zoomIn();
+                    lastDistance = currentDistance;
+                } else if (delta < -5) {
+                    zoomOut();
+                    lastDistance = currentDistance;
+                }
+            }
+        }
+
+        // Pan/drag functionality for zoomed images
+        function handleImageMouseDown(e) {
+            if (zoomLevel <= 100) return;
+            isDragging = true;
+            dragStartX = e.clientX - dragOffsetX;
+            dragStartY = e.clientY - dragOffsetY;
+            document.getElementById('modal-image-wrapper').classList.add('dragging');
+        }
+
+        function handleImageMouseMove(e) {
+            if (!isDragging) return;
+            dragOffsetX = e.clientX - dragStartX;
+            dragOffsetY = e.clientY - dragStartY;
+            updateZoom();
+        }
+
+        function handleImageMouseUp() {
+            isDragging = false;
+            document.getElementById('modal-image-wrapper').classList.remove('dragging');
+        }
+
+        // Process uploaded files
+        function processFiles(files) {
+            var imageFiles = Array.from(files).filter(function (f) {
+                return f.type.startsWith('image/');
+            });
+
+            if (imageFiles.length === 0) {
+                showError('Please select image files only.');
+                return;
+            }
+
+            var processed = 0;
+
+            function onImageReady() {
+                processed++;
+                if (processed === imageFiles.length) {
+                    currentSlide = uploadedImages.length - 1;
+                    updateCarousel();
+                    sendCurrentValue();
+                }
+            }
+
+            imageFiles.forEach(function (file) {
+                if (uploadServerURL && uploadFolder) {
+                    uploadToJotform(file, function (url) {
+                        if (url) {
+                            uploadedImages.push({ name: file.name, base64: url });
+                            onImageReady();
+                        } else {
+                            readAsBase64(file, function (dataUri) {
+                                uploadedImages.push({ name: file.name, base64: dataUri });
+                                onImageReady();
+                            });
+                        }
+                    });
+                } else {
+                    readAsBase64(file, function (dataUri) {
+                        uploadedImages.push({ name: file.name, base64: dataUri });
+                        onImageReady();
+                    });
+                }
+            });
+        }
+
+        // Update carousel display
+        function updateCarousel() {
+            const carousel = document.getElementById('carousel');
+            const track = document.getElementById('track');
+            const thumbsContainer = document.getElementById('thumbnails');
+            const dropZone = document.getElementById('drop-zone');
+            
+            if (uploadedImages.length === 0) {
+                carousel.style.display = 'none';
+                dropZone.style.display = 'block';
+                thumbsContainer.innerHTML = '';
+                requestResize();
+                return;
+            }
+
+            dropZone.style.display = 'none';
+            carousel.style.display = 'block';
+            
+            if (currentSlide >= uploadedImages.length) {
+                currentSlide = Math.max(0, uploadedImages.length - 1);
+            }
+
+            track.innerHTML = '';
+            thumbsContainer.innerHTML = '';
+
+            uploadedImages.forEach((img, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `
+                    <img src="${img.base64}" alt="${img.name}" onclick="openModal(${index})">
+                    <button class="btn-delete" onclick="deleteImage(${index})" title="Remove image">&times;</button>
+                    <div class="slide-info">${index + 1} / ${uploadedImages.length}</div>
+                `;
+                track.appendChild(slide);
+
+                const thumb = document.createElement('img');
+                thumb.src = img.base64;
+                thumb.className = `thumbnail ${index === currentSlide ? 'active' : ''}`;
+                thumb.onclick = () => goToSlide(index);
+                thumb.style.width = widgetSettings.thumbnailSize + 'px';
+                thumb.style.height = widgetSettings.thumbnailSize + 'px';
+                thumbsContainer.appendChild(thumb);
+            });
+
+            document.getElementById('btn-prev').style.display = uploadedImages.length > 1 ? 'flex' : 'none';
+            document.getElementById('btn-next').style.display = uploadedImages.length > 1 ? 'flex' : 'none';
+
+            goToSlide(currentSlide);
+            requestResize();
+        }
+
+        function moveSlide(direction) {
+            let newSlide = currentSlide + direction;
+            if (newSlide < 0) newSlide = uploadedImages.length - 1;
+            if (newSlide >= uploadedImages.length) newSlide = 0;
+            goToSlide(newSlide);
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            const track = document.getElementById('track');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            const thumbs = document.querySelectorAll('.thumbnail');
+            thumbs.forEach((thumb, i) => {
+                if (i === currentSlide) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        function deleteImage(index) {
+            uploadedImages.splice(index, 1);
+            updateCarousel();
+            sendCurrentValue();
+        }
+
+        // Modal Functions
+        function openModal(index) {
+            modalCurrentIndex = index;
+            const overlay = document.getElementById('modal-overlay');
+            const image = document.getElementById('modal-image');
+            
+            resetZoom();
+            image.src = uploadedImages[index].base64;
+            updateModalCounter();
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Add event listeners
+            document.addEventListener('keydown', handleModalKeyboard);
+            document.addEventListener('wheel', handleMouseWheel, { passive: false });
+            image.addEventListener('mousedown', handleImageMouseDown);
+            document.addEventListener('mousemove', handleImageMouseMove);
+            document.addEventListener('mouseup', handleImageMouseUp);
+            image.addEventListener('touchstart', handleTouchStart);
+            image.addEventListener('touchmove', handleTouchMove, { passive: false });
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modal-overlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Remove event listeners
+            document.removeEventListener('keydown', handleModalKeyboard);
+            document.removeEventListener('wheel', handleMouseWheel);
+            const image = document.getElementById('modal-image');
+            image.removeEventListener('mousedown', handleImageMouseDown);
+            document.removeEventListener('mousemove', handleImageMouseMove);
+            document.removeEventListener('mouseup', handleImageMouseUp);
+            image.removeEventListener('touchstart', handleTouchStart);
+            image.removeEventListener('touchmove', handleTouchMove);
+        }
+
+        function modalPrev() {
+            modalCurrentIndex--;
+            if (modalCurrentIndex < 0) {
+                modalCurrentIndex = uploadedImages.length - 1;
+            }
+            updateModalImage();
+        }
+
+        function modalNext() {
+            modalCurrentIndex++;
+            if (modalCurrentIndex >= uploadedImages.length) {
+                modalCurrentIndex = 0;
+            }
+            updateModalImage();
+        }
+
+        function updateModalImage() {
+            const image = document.getElementById('modal-image');
+            resetZoom();
+            image.src = uploadedImages[modalCurrentIndex].base64;
+            updateModalCounter();
+        }
+
+        function updateModalCounter() {
+            const counter = document.getElementById('modal-counter');
+            counter.textContent = `${modalCurrentIndex + 1} / ${uploadedImages.length}`;
+        }
+
+        function handleModalKeyboard(e) {
+            if (e.key === 'ArrowLeft') {
+                modalPrev();
+            } else if (e.key === 'ArrowRight') {
+                modalNext();
+            } else if (e.key === 'Escape') {
+                closeModal();
+            }
+        }
+
+        // Close modal when clicking overlay background
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('modal-overlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        });
+
+        // File input handling
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+
+        fileInput.addEventListener('change', function (e) {
+            if (e.target.files.length) processFiles(e.target.files);
+            e.target.value = '';
+        });
+
+        dropZone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', function () {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) processFiles(e.dataTransfer.files);
+        });
+
+        // Jotform widget lifecycle
+        JFCustomWidget.subscribe('ready', function (data) {
+            isRequired = JFCustomWidget.isWidgetRequired();
+            uploadServerURL = data.uploadServerURL || '';
+            if (uploadServerURL) {
+                uploadFolder = generateFolder(data.formID);
+            }
+
+            // Static mode — widget is being viewed in tables/submission view
+            var isStatic = JFCustomWidget.isWidgetStatic();
+
+            // Edit mode — form loaded with an existing submission value
+            var isEditMode = data.isEditMode || (data.value && data.value.length > 0);
+
+            // Get widget settings from Jotform
+            var settings = JFCustomWidget.getWidgetSettings();
+            if (settings) {
+                if (settings.carouselHeight) widgetSettings.carouselHeight = parseInt(settings.carouselHeight);
+                if (settings.carouselWidth) widgetSettings.carouselWidth = settings.carouselWidth;
+                if (settings.containerPadding) widgetSettings.containerPadding = parseInt(settings.containerPadding);
+                if (settings.containerOverflow) widgetSettings.containerOverflow = settings.containerOverflow;
+                if (settings.thumbnailSize) widgetSettings.thumbnailSize = parseInt(settings.thumbnailSize);
+                if (settings.thumbnailGap) widgetSettings.thumbnailGap = parseInt(settings.thumbnailGap);
+            }
+
+            // Apply widget settings
+            applyWidgetSettings();
+
+            if (isStatic) {
+                document.body.classList.add('static-mode', 'view-only');
+            } else if (isEditMode) {
+                document.body.classList.add('view-only');
+            }
+
+            // Hide upload element when editLink is present
+            var editLink = data.editLink || false;
+            if (editLink) {
+                document.getElementById('drop-zone').style.display = 'none';
+            }
+
+            // Restore saved value (edit mode or static)
+            if (data.value && JFCustomWidgetUtils.hasMetadata(data.value)) {
+                var extracted = JFCustomWidgetUtils.extractMetadata(data.value);
+                if (extracted && extracted.length > 0) {
+                    uploadedImages = extracted.map(function (item) {
+                        var src = item.base64 || '';
+                        if (!src && item.url) {
+                            src = JFCustomWidgetUtils.fixS3UriOrigin(item.url);
+                        }
+                        return { name: item.name, base64: src };
+                    }).filter(function (img) { return !!img.base64; });
+                    currentSlide = 0;
+                    if (uploadedImages.length > 0) updateCarousel();
+                }
+            }
+
+            // In static mode with no value — show nothing
+            if (isStatic && uploadedImages.length === 0) {
+                document.getElementById('drop-zone').style.display = 'none';
+                requestResize();
+                return;
+            }
+
+            JFCustomWidget.subscribe('submit', function () {
+                var value = buildMetadataValue();
+                var valid = !isRequired || uploadedImages.length > 0;
+
+                if (!valid) {
+                    JFCustomWidget.showWidgetError(JFCustomWidget.texts.required || 'This field is required.');
+                } else {
+                    JFCustomWidget.hideWidgetError();
+                }
+
+                JFCustomWidget.sendSubmit({ valid: valid, value: value });
+            });
+
+            JFCustomWidget.subscribe('clear', function () {
+                uploadedImages = [];
+                currentSlide = 0;
+                document.body.classList.remove('view-only');
+                updateCarousel();
+                sendCurrentValue();
+            });
+
+            requestResize();
+        });
+
+        // Listen for widget settings changes
+        JFCustomWidget.subscribe('settingsUpdated', function (settings) {
+            if (settings.carouselHeight) widgetSettings.carouselHeight = parseInt(settings.carouselHeight);
+            if (settings.carouselWidth) widgetSettings.carouselWidth = settings.carouselWidth;
+            if (settings.containerPadding) widgetSettings.containerPadding = parseInt(settings.containerPadding);
+            if (settings.containerOverflow) widgetSettings.containerOverflow = settings.containerOverflow;
+            if (settings.thumbnailSize) widgetSettings.thumbnailSize = parseInt(settings.thumbnailSize);
+            if (settings.thumbnailGap) widgetSettings.thumbnailGap = parseInt(settings.thumbnailGap);
+
+            applyWidgetSettings();
+            updateCarousel();
+            requestResize();
+        });
+    </script>
+</body>
 </html>
